@@ -3,9 +3,10 @@ package com.marsollu.rinhabackend.controllers;
 import com.marsollu.rinhabackend.domain.Person;
 import com.marsollu.rinhabackend.dto.PersonRequestDTO;
 import com.marsollu.rinhabackend.dto.PersonResponseDTO;
-import com.marsollu.rinhabackend.repositories.PersonRepository;
+import com.marsollu.rinhabackend.services.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,27 +14,23 @@ import org.springframework.web.bind.annotation.*;
 public class PersonController {
 
     @Autowired
-    private PersonRepository repository;
+    private PersonService service;
 
     @PostMapping
-    public HttpStatus create(@RequestBody PersonRequestDTO data) {
-        Person person = new Person(data);
-        repository.save(person);
-        return HttpStatus.CREATED;
+    public ResponseEntity<Person> create(@RequestBody PersonRequestDTO data) throws Exception {
+        Person newPerson = service.createPerson(data);
+        return new ResponseEntity<>(newPerson, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public PersonResponseDTO get(@PathVariable("id") int personId) {
-        Person person = repository.getReferenceById((long) personId);
-
-        return new PersonResponseDTO(person.getId(), person.getNickname(), person.getName(), person.getBirth_date());
+    public ResponseEntity<PersonResponseDTO> get(@PathVariable("id") int personId) throws Exception {
+        Person person = service.getPersonById((long) personId);
+        PersonResponseDTO data = new PersonResponseDTO(person.getId(), person.getNickname(), person.getName(), person.getBirth_date());
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
-    @GetMapping()
-    public PersonResponseDTO search(@RequestParam("t") String search) {
-        System.out.println(search);
-
-        return new PersonResponseDTO((long) 1, "Search", "Lucas Marsol", "1998-07-01");
+    @GetMapping("/contagem-pessoas")
+    public long count() {
+        return service.getAllCount();
     }
-
 }
