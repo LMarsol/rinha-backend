@@ -2,15 +2,8 @@ package com.marsollu.rinhabackend.domain;
 
 import com.marsollu.rinhabackend.dto.PersonRequestDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Table(name = "persons")
 @Entity(name = "persons")
 @Getter
 @NoArgsConstructor
@@ -22,10 +15,12 @@ public class Person {
     private String nickname;
     private String name;
     private String birth_date;
+    private String stack;
 
     public Person(PersonRequestDTO data) {
         this.nickname = data.apelido();
         this.name = data.nome();
         this.birth_date = data.nascimento();
+        this.stack = data.stack() != null ? String.join(";", data.stack()) : null;
     }
 }

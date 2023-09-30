@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 @RestController
 @RequestMapping("pessoas")
 public class PersonController {
@@ -17,15 +20,18 @@ public class PersonController {
     private PersonService service;
 
     @PostMapping
-    public ResponseEntity<Person> create(@RequestBody PersonRequestDTO data) throws Exception {
-        Person newPerson = service.createPerson(data);
-        return new ResponseEntity<>(newPerson, HttpStatus.CREATED);
+    public ResponseEntity<PersonResponseDTO> create(@RequestBody PersonRequestDTO data) throws Exception {
+        Person person = service.createPerson(data);
+        List<String> stack = person.getStack() != null ? Arrays.stream(person.getStack().split(";")).toList() : null;
+        PersonResponseDTO response = new PersonResponseDTO(person.getId(), person.getNickname(), person.getName(), person.getBirth_date(), stack);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PersonResponseDTO> get(@PathVariable("id") int personId) throws Exception {
         Person person = service.getPersonById((long) personId);
-        PersonResponseDTO data = new PersonResponseDTO(person.getId(), person.getNickname(), person.getName(), person.getBirth_date());
+        List<String> stack = person.getStack() != null ? Arrays.stream(person.getStack().split(";")).toList() : null;
+        PersonResponseDTO data = new PersonResponseDTO(person.getId(), person.getNickname(), person.getName(), person.getBirth_date(), stack);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
